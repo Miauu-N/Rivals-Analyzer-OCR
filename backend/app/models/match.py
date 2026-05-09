@@ -15,6 +15,7 @@ class Match(Base):
     enemy_score = Column(Integer)
     kda = Column(String)
     rank = Column(String)
+    replay_id = Column(String)
     replay_score = Column(Float, default=0.0) # Used for recommendations
     created_at = Column(DateTime, default=datetime.utcnow)
 

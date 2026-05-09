@@ -28,7 +28,7 @@ def parse_history(image_path: str):
     
     Cada objeto en el array JSON debe tener esta estructura exacta:
     {
-      "result": "Victory" o "Defeat",
+      "result": "Victory", "Defeat" o "Draw" (lee literalmente lo que dice la tarjeta: VICTORY → Victory, DEFEAT → Defeat, DRAW → Draw),
       "kda": "Kills / Deaths / Assists" (ejemplo: "14 / 11 / 24"),
       "duration_seconds": número entero de la duración total en segundos,
       "map_name": "nombre del mapa" (ejemplo: "Central Park", "Midtown"),
@@ -51,8 +51,17 @@ def parse_history(image_path: str):
         # Post-process the JSON list to convert dates
         processed_matches = []
         for m in matches_data:
-            match_data = {
-                "result": str(m.get("result", "Unknown")).capitalize(),
+                raw_result = str(m.get("result", "Unknown")).strip().upper()
+                if raw_result in ("VICTORY", "WIN"):
+                    result = "Victory"
+                elif raw_result in ("DEFEAT", "LOSS"):
+                    result = "Defeat"
+                elif raw_result == "DRAW":
+                    result = "Draw"
+                else:
+                    result = raw_result.capitalize()
+                match_data = {
+                    "result": result,
                 "kda": str(m.get("kda", "Unknown")),
                 "duration_seconds": int(m.get("duration_seconds", 0)),
                 "map_name": str(m.get("map_name", "Unknown")),

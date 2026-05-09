@@ -13,32 +13,38 @@ def parse_scoreboard(image_path: str) -> dict:
         
         prompt = """
         Analiza esta captura de pantalla de un Scoreboard (tabla de puntuaciones) del juego Marvel Rivals.
-        El jugador principal ("main user") tiene su nombre escrito en color Naranja o Amarillo (en este caso suele decir MVP, SVP o simplemente está resaltado).
+        El jugador principal ("main user") tiene su nombre escrito en color Naranja o Amarillo (suele tener el badge de MVP o SVP).
         Extrae la información de la partida y el rendimiento de LOS 12 JUGADORES en un JSON estricto.
         No incluyas markdown, bloques de código (como ```json) ni texto extra, solo el JSON puro.
+        
+        IMPORTANTE sobre el KDA: En la tabla hay una columna llamada "Final Hits" que NO es el KDA.
+        El K/D/A (kills, deaths, assists) son los 3 números pequeños que aparecen DENTRO DE LA MISMA CELDA del nombre del jugador, justo debajo o al lado del nombre, con los iconos de espada cruzada / corazón roto / espada con flecha. Por ejemplo: "10  2  15" significa K=10, D=2, A=15.
+        La columna "Final Hits" es una columna separada a la derecha y NO debe usarse para el KDA.
         
         Estructura exacta:
         {
             "match_info": {
-                "result": "Win" o "Loss" o "Draw" (Suele decir VICTORY o DEFEAT arriba a la izquierda),
-                "map_name": "Nombre del mapa (está arriba a la derecha en texto pequeño, ej: INTERGALACTIC EMPIRE OF WAKANDA - BIRNIN T'CHALLA)",
-                "duration_seconds": Duración total en segundos (convierte el tiempo mm:ss de arriba a la derecha a segundos enteros)
+                "result": "Victory" o "Defeat" o "Draw" (dice VICTORY, DEFEAT o DRAW arriba a la izquierda),
+                "map_name": "Nombre del mapa (arriba a la derecha en texto pequeño)",
+                "duration_seconds": duración en segundos (convierte mm:ss a segundos enteros),
+                "replay_id": "número de Replay ID en la esquina inferior derecha. Si no se ve, usa null."
             },
             "performances": [
                 {
-                    "player_name": "nombre del jugador",
-                    "hero_name": "Nombre del personaje de Marvel (dedúcelo viendo su retrato a la izquierda del nombre)",
-                    "kills": número bajo el icono de las dos espadas cruzadas (Final Hits),
-                    "deaths": número bajo el icono del corazón roto,
-                    "assists": número bajo el icono de la espada con la flecha,
+                    "player_name": "nombre del jugador tal cual aparece",
+                    "role": "ROL del jugador según el ICONO PEQUEÑO a la izquierda del nombre: Vanguard (escudo), Duelist (espadas cruzadas), Strategist (corazón/cruz médica). Si no puedes determinarlo escribe Unknown.",
+                    "kills": el primer número del KDA que aparece EN LA CELDA del nombre del jugador (icono espada cruzada), NO es Final Hits,
+                    "deaths": el segundo número del KDA en la celda del jugador (icono corazón roto),
+                    "assists": el tercer número del KDA en la celda del jugador (icono espada con flecha),
+                    "final_hits": número de la columna "Final Hits" (la primera columna numérica a la derecha),
                     "damage": número en la columna Damage,
-                    "damage_blocked": número en la columna Damage Blocked (mitigación),
+                    "damage_blocked": número en la columna Damage Blocked,
                     "healing": número en la columna Healing,
-                    "is_main_user": true si su nombre está en color naranja/amarillo, false si está en negro/blanco
+                    "is_main_user": true si el nombre está en naranja/amarillo, false si está en blanco/gris
                 }
             ]
         }
-        Asegúrate de extraer las 12 filas de jugadores de la tabla.
+        Asegúrate de extraer las 12 filas de jugadores.
         """
         
         response = model.generate_content([prompt, img])

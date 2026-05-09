@@ -101,7 +101,7 @@ export default function MatchesPage() {
       setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     } else {
       setSortKey(key);
-      setSortDir('asc');
+      setSortDir('desc');
     }
   };
 
@@ -196,8 +196,23 @@ export default function MatchesPage() {
                         <div className="text-xs text-gray-500">{timeString}</div>
                       </td>
                       {/* Resultado */}
-                      <td className={`p-3 font-bold ${m.result?.toUpperCase() === 'VICTORY' ? 'text-green-400' : m.result?.toUpperCase() === 'DRAW' ? 'text-yellow-400' : 'text-red-400'}`}>
-                        {m.result || 'Desconocido'}
+                      <td className={`p-3 font-bold ${
+                        (() => {
+                          const r = (m.result || '').toUpperCase();
+                          if (r === 'VICTORY' || r === 'WIN') return 'text-green-400';
+                          if (r === 'DRAW') return 'text-yellow-400';
+                          return 'text-red-400';
+                        })()
+                      }`}>
+                        {(() => {
+                          const r = (m.result || '').toUpperCase();
+                          if (r === 'WIN') return 'Victory';
+                          if (r === 'LOSS') return 'Defeat';
+                          if (r === 'VICTORY') return 'Victory';
+                          if (r === 'DEFEAT') return 'Defeat';
+                          if (r === 'DRAW') return 'Draw';
+                          return m.result || 'Desconocido';
+                        })()}
                       </td>
                       {/* Rango */}
                       <td className="p-3">
@@ -262,13 +277,27 @@ export default function MatchesPage() {
                     {expandedMatchId === m.id && hasScoreboard && (
                       <tr className="bg-gray-950 border-b border-gray-800">
                         <td colSpan={11} className="p-0">
-                          <div className="p-6">
-                            <h4 className="text-base font-bold mb-4 text-indigo-400">Estadísticas de Jugadores</h4>
+                          <div className="p-6 space-y-4">
+                            {/* Replay ID */}
+                            {m.replay_id && (
+                              <div className="flex items-center gap-3">
+                                <span className="text-gray-400 text-sm">Replay ID:</span>
+                                <code className="text-indigo-300 font-mono text-sm">{m.replay_id}</code>
+                                <button
+                                  onClick={() => navigator.clipboard.writeText(m.replay_id)}
+                                  className="px-2 py-0.5 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white rounded text-xs transition-colors"
+                                  title="Copiar Replay ID"
+                                >
+                                  📋 Copiar
+                                </button>
+                              </div>
+                            )}
+                            <h4 className="text-base font-bold text-indigo-400">Estadísticas de Jugadores</h4>
                             <table className="w-full text-sm text-left">
                               <thead className="bg-gray-900 text-gray-400 border-b border-gray-800">
                                 <tr>
                                   <th className="p-2">Jugador</th>
-                                  <th className="p-2">Héroe</th>
+                                  <th className="p-2">Rol</th>
                                   <th className="p-2">K / D / A</th>
                                   <th className="p-2">Daño</th>
                                   <th className="p-2">Curación</th>
@@ -282,12 +311,19 @@ export default function MatchesPage() {
                                   const tenMins = (m.duration_seconds || 600) / 600;
                                   const dmgPer10 = Math.round(p.damage / tenMins).toLocaleString();
                                   const healPer10 = Math.round(p.healing / tenMins).toLocaleString();
+                                  const roleColor = (() => {
+                                    const r = (p.hero_name || '').toLowerCase();
+                                    if (r.includes('vanguard')) return 'text-blue-400';
+                                    if (r.includes('duelist')) return 'text-red-400';
+                                    if (r.includes('strategist')) return 'text-green-400';
+                                    return 'text-gray-400';
+                                  })();
                                   return (
                                     <tr key={p.id} className={p.is_main_user ? 'bg-indigo-900/20' : ''}>
                                       <td className={`p-2 font-medium ${p.is_main_user ? 'text-yellow-500' : 'text-gray-300'}`}>
                                         {p.player_name || 'Desconocido'}
                                       </td>
-                                      <td className="p-2 text-gray-300">{p.hero_name}</td>
+                                      <td className={`p-2 font-medium ${roleColor}`}>{p.hero_name || '-'}</td>
                                       <td className="p-2 font-mono">{p.kills} / {p.deaths} / {p.assists}</td>
                                       <td className="p-2">{p.damage.toLocaleString()}</td>
                                       <td className="p-2">{p.healing.toLocaleString()}</td>

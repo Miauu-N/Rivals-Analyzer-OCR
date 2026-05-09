@@ -132,10 +132,12 @@ async def upload_images(
                             existing_match = best_candidate
                     
                     if existing_match:
-                        # Link performances to existing match and update KDA if missing
+                        # Link performances to existing match and update KDA/replay_id if missing
                         db_match = existing_match
                         if not db_match.kda and main_kda:
                             db_match.kda = main_kda
+                        if not db_match.replay_id and match_info.get("replay_id"):
+                            db_match.replay_id = str(match_info.get("replay_id"))
                         print(f"Linked scoreboard to existing match ID {db_match.id}")
                     else:
                         # Create a new match from the scoreboard data
@@ -150,6 +152,7 @@ async def upload_images(
                             result=match_info.get("result"),
                             duration_seconds=sb_duration,
                             kda=main_kda,
+                            replay_id=str(match_info.get("replay_id")) if match_info.get("replay_id") else None,
                             replay_score=replay_score
                         )
                         db.add(db_match)
@@ -164,19 +167,20 @@ async def upload_images(
                     
                     if existing_perf_count == 0:
                         for p_data in performances:
-                            perf = Performance(
-                                match_id=db_match.id,
-                                player_name=p_data.get("player_name"),
-                                is_main_user=p_data.get("is_main_user", False),
-                                hero_name=p_data.get("hero_name"),
-                                damage=p_data.get("damage", 0),
-                                healing=p_data.get("healing", 0),
-                                kills=p_data.get("kills", 0),
-                                assists=p_data.get("assists", 0),
-                                deaths=p_data.get("deaths", 0),
-                                mitigation=p_data.get("damage_blocked", 0)
-                            )
-                            db.add(perf)
+                                perf = Performance(
+                                    match_id=db_match.id,
+                                    player_name=p_data.get("player_name"),
+                                    is_main_user=p_data.get("is_main_user", False),
+                                    # Store role in hero_name column (Vanguard/Duelist/Strategist)
+                                    hero_name=p_data.get("role") or p_data.get("hero_name"),
+                                    damage=p_data.get("damage", 0),
+                                    healing=p_data.get("healing", 0),
+                                    kills=p_data.get("kills", 0),
+                                    assists=p_data.get("assists", 0),
+                                    deaths=p_data.get("deaths", 0),
+                                    mitigation=p_data.get("damage_blocked", 0)
+                                )
+                                db.add(perf)
                     
                     db_upload.processed = True
                     db.commit()

@@ -5,7 +5,7 @@ from datetime import datetime
 class PerformanceBase(BaseModel):
     player_name: Optional[str] = None
     is_main_user: Optional[bool] = False
-    hero_name: str
+    hero_name: Optional[str] = None  # stores role: Vanguard / Duelist / Strategist
     damage: int
     healing: int
     kills: int
@@ -31,6 +31,7 @@ class MatchBase(BaseModel):
     enemy_score: Optional[int] = None
     kda: Optional[str] = None
     rank: Optional[str] = None
+    replay_id: Optional[str] = None
     replay_score: Optional[float] = 0.0
 
 class MatchCreate(MatchBase):

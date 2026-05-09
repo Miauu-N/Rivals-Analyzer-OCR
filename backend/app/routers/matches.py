@@ -16,8 +16,14 @@ def get_matches(db: Session = Depends(get_db), current_user: User = Depends(get_
 
 @router.delete("/clear")
 def clear_matches(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # Delete all matches for the current user
-    db.query(Match).filter(Match.user_id == current_user.id).delete()
+    from app.models.performance import Performance
+    # Get match IDs for this user first
+    match_ids = [m.id for m in db.query(Match.id).filter(Match.user_id == current_user.id).all()]
+    # Delete child performances first to respect the foreign key constraint
+    if match_ids:
+        db.query(Performance).filter(Performance.match_id.in_(match_ids)).delete(synchronize_session=False)
+    # Now safe to delete the matches
+    db.query(Match).filter(Match.user_id == current_user.id).delete(synchronize_session=False)
     db.commit()
     return {"message": "Historial limpiado correctamente"}
 
