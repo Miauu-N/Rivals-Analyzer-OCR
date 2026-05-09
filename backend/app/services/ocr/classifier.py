@@ -1,20 +1,31 @@
-import pytesseract
-import cv2
-from .preprocess import preprocess_for_ocr
+import google.generativeai as genai
+from PIL import Image
+from app.core.config import settings
+
+genai.configure(api_key=settings.GEMINI_API_KEY)
+_model = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
 
 def classify_image(image_path: str) -> str:
-    image, gray, thresh = preprocess_for_ocr(image_path)
-    
-    h, w = thresh.shape
-    top_crop = thresh[0:int(h*0.2), 0:w]
-    
-    text = pytesseract.image_to_string(top_crop, config='--psm 11').upper()
-    
-    # "HISTORY" is often lost due to yellow on yellow background, but "CAREER" is clearly visible in the top left.
-    if "CAREER" in text or "HISTORY" in text or "MODES" in text:
-        return "history"
-    elif "SCOREBOARD" in text or "STATISTICS" in text or "PERFORMANCE" in text:
-        return "scoreboard"
+    try:
+        img = Image.open(image_path)
         
-    # Default to history as best effort if we can't classify
-    return "history"
+        prompt = """Mira esta captura de pantalla del juego Marvel Rivals.
+        Clasifícala en UNA de estas dos categorías y responde SOLO con esa palabra, sin explicación:
+        - "scoreboard": Si muestra la pantalla de puntuaciones al final de una partida. Se identifica por tener el texto VICTORY, DEFEAT o DRAW en letras grandes a la izquierda, y una tabla con los 12 jugadores con sus estadísticas (Damage, Healing, Final Hits, etc).
+        - "history": Si muestra la pantalla de historial/carrera (Career History). Se identifica por tener una barra de pestañas en la parte superior (con OVERVIEW, STATISTICS, HISTORY, etc) y una lista de partidas pasadas con fechas.
+        
+        Responde solo con la palabra: scoreboard o history"""
+        
+        response = _model.generate_content([prompt, img])
+        result = response.text.strip().lower()
+        
+        if "scoreboard" in result:
+            return "scoreboard"
+        elif "history" in result:
+            return "history"
+        else:
+            return "history"  # safe fallback
+            
+    except Exception as e:
+        print(f"Error classifying image with Gemini: {e}")
+        return "history"

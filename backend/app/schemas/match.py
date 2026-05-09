@@ -3,6 +3,8 @@ from typing import List, Optional
 from datetime import datetime
 
 class PerformanceBase(BaseModel):
+    player_name: Optional[str] = None
+    is_main_user: Optional[bool] = False
     hero_name: str
     damage: int
     healing: int

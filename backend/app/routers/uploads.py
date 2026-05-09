@@ -71,7 +71,117 @@ async def upload_images(
                 db_upload.processed = True
                 db.commit()
             except Exception as e:
-                print(f"Error processing image {file_path}: {e}")
+                print(f"Error processing history image {file_path}: {e}")
+                
+        elif image_type == "scoreboard":
+            from app.services.ocr.scoreboard_parser import parse_scoreboard
+            from app.models.performance import Performance
+            from sqlalchemy import func
+            try:
+                data = parse_scoreboard(file_path)
+                if data and "match_info" in data:
+                    match_info = data["match_info"]
+                    performances = data.get("performances", [])
+                    sb_map = (match_info.get("map_name") or "").strip().upper()
+                    sb_result = (match_info.get("result") or "").strip().upper()
+                    sb_duration = match_info.get("duration_seconds") or 0
+                    
+                    # Find main user KDA
+                    main_kda = None
+                    for p in performances:
+                        if p.get("is_main_user"):
+                            main_kda = f"{p.get('kills', 0)}/{p.get('deaths', 0)}/{p.get('assists', 0)}"
+                            break
+                    
+                    # --- Try to find an existing match to link to ---
+                    DURATION_TOLERANCE = 60  # seconds
+                    existing_match = None
+                    
+                    if sb_map and sb_result and sb_duration:
+                        candidates = db.query(Match).filter(
+                            Match.user_id == current_user.id,
+                            func.upper(Match.result) == sb_result,
+                            Match.duration_seconds.between(
+                                sb_duration - DURATION_TOLERANCE,
+                                sb_duration + DURATION_TOLERANCE
+                            )
+                        ).all()
+                        
+                        # Among candidates, pick the one whose map name is most similar.
+                        # The scoreboard shows maps as "ZONE-SUBMAP" while history shows "Submap - Zone"
+                        # so we normalize both to a bag of words and count overlap.
+                        def map_word_set(name: str) -> set:
+                            import re
+                            # Split on spaces, dashes, apostrophes, dots — keep only words of 3+ chars
+                            words = re.split(r"[\s\-'.,]+", name.upper())
+                            return {w for w in words if len(w) >= 3}
+                        
+                        sb_words = map_word_set(sb_map)
+                        best_candidate = None
+                        best_overlap = 0
+                        
+                        for candidate in candidates:
+                            candidate_words = map_word_set(candidate.map_name or "")
+                            overlap = len(sb_words & candidate_words)
+                            if overlap > best_overlap:
+                                best_overlap = overlap
+                                best_candidate = candidate
+                        
+                        # Require at least 2 words in common to consider it a match
+                        if best_candidate and best_overlap >= 2:
+                            existing_match = best_candidate
+                    
+                    if existing_match:
+                        # Link performances to existing match and update KDA if missing
+                        db_match = existing_match
+                        if not db_match.kda and main_kda:
+                            db_match.kda = main_kda
+                        print(f"Linked scoreboard to existing match ID {db_match.id}")
+                    else:
+                        # Create a new match from the scoreboard data
+                        temp_score_data = {
+                            "result": match_info.get("result"),
+                            "duration_seconds": sb_duration
+                        }
+                        replay_score = calculate_replay_score(temp_score_data)
+                        db_match = Match(
+                            user_id=current_user.id,
+                            map_name=match_info.get("map_name"),
+                            result=match_info.get("result"),
+                            duration_seconds=sb_duration,
+                            kda=main_kda,
+                            replay_score=replay_score
+                        )
+                        db.add(db_match)
+                        db.commit()
+                        db.refresh(db_match)
+                        print(f"Created new match from scoreboard, ID {db_match.id}")
+                    
+                    # Avoid duplicating performances if already linked
+                    existing_perf_count = db.query(Performance).filter(
+                        Performance.match_id == db_match.id
+                    ).count()
+                    
+                    if existing_perf_count == 0:
+                        for p_data in performances:
+                            perf = Performance(
+                                match_id=db_match.id,
+                                player_name=p_data.get("player_name"),
+                                is_main_user=p_data.get("is_main_user", False),
+                                hero_name=p_data.get("hero_name"),
+                                damage=p_data.get("damage", 0),
+                                healing=p_data.get("healing", 0),
+                                kills=p_data.get("kills", 0),
+                                assists=p_data.get("assists", 0),
+                                deaths=p_data.get("deaths", 0),
+                                mitigation=p_data.get("damage_blocked", 0)
+                            )
+                            db.add(perf)
+                    
+                    db_upload.processed = True
+                    db.commit()
+            except Exception as e:
+                print(f"Error processing scoreboard image {file_path}: {e}")
         
     return {"uploaded": saved_files}
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -7,6 +7,8 @@ class Performance(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     match_id = Column(Integer, ForeignKey("matches.id"))
+    player_name = Column(String)
+    is_main_user = Column(Boolean, default=False)
     hero_name = Column(String)
     damage = Column(Integer)
     healing = Column(Integer)
