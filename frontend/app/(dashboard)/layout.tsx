@@ -10,6 +10,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
             <Link href="/upload" className="hover:text-primary transition-colors">Subir</Link>
             <Link href="/matches" className="hover:text-primary transition-colors">Historial</Link>
+            <Link href="/tierlist" className="hover:text-primary transition-colors">Tier List</Link>
           </nav>
         </div>
       </header>
