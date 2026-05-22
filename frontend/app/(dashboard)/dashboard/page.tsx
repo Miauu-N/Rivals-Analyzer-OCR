@@ -10,7 +10,8 @@ export default function DashboardPage() {
     const fetchRecommended = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8000/api/matches/recommended", {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
+        const res = await fetch(`${API_URL}/api/matches/recommended`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

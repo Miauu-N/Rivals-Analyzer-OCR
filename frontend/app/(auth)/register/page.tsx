@@ -13,14 +13,23 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch("http://localhost:8000/api/auth/register", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.detail || "Error en el registro");
+        let errorMessage = "Error en el registro";
+        if (data.detail) {
+          if (Array.isArray(data.detail)) {
+            errorMessage = data.detail.map((err: any) => err.msg).join(", ");
+          } else {
+            errorMessage = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+          }
+        }
+        throw new Error(errorMessage);
       }
       // Registration successful, redirect to login
       router.push("/login");

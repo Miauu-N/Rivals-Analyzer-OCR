@@ -45,6 +45,13 @@ La aplicación se ejecuta a través de tres contenedores principales:
 > **NUNCA** corras `npm install` o `pip install` en tu entorno local esperando que la aplicación en ejecución lo detecte. 
 > Si modificas el `package.json` o `requirements.txt`, **DEBES reconstruir el contenedor correspondiente**.
 
+## 🔐 Configuración de Entorno
+
+Antes de desplegar en producción o desarrollo, asegúrate de configurar tu archivo `.env` en el directorio del backend. El sistema requiere:
+- `SECRET_KEY`: Una cadena segura para firmar los tokens JWT. (Obligatorio, la app fallará sin esto para evitar secretos inseguros).
+- `FRONTEND_URL`: La URL de tu frontend (ej. `http://localhost:3000` o tu dominio en Vercel) para configurar estrictamente las políticas de CORS.
+- `GEMINI_API_KEY`: Tu clave de Google Generative AI para el procesamiento semántico.
+
 ## ⚙️ Comandos Frecuentes
 
 Asegúrate de tener Docker y Docker Compose instalados.

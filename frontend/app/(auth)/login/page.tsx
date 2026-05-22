@@ -17,14 +17,23 @@ export default function LoginPage() {
       formData.append("username", email); // OAuth2PasswordRequestForm expects 'username'
       formData.append("password", password);
 
-      const res = await fetch("http://localhost:8000/api/auth/login", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: formData.toString(),
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.detail || "Error en el login");
+        let errorMessage = "Error en el login";
+        if (data.detail) {
+          if (Array.isArray(data.detail)) {
+            errorMessage = data.detail.map((err: any) => err.msg).join(", ");
+          } else {
+            errorMessage = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+          }
+        }
+        throw new Error(errorMessage);
       }
       const data = await res.json();
       // En una app real, guardaríamos el token en cookies o localstorage

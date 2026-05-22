@@ -80,7 +80,8 @@ export default function MatchesPage() {
     const fetchMatches = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8000/api/matches/", {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
+        const res = await fetch(`${API_URL}/api/matches/`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -119,7 +120,8 @@ export default function MatchesPage() {
     if (!confirm("¿Estás seguro de que quieres borrar todo el historial? Esta acción no se puede deshacer.")) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/api/matches/clear", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
+      const res = await fetch(`${API_URL}/api/matches/clear`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });

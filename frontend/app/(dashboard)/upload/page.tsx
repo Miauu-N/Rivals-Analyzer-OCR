@@ -49,7 +49,8 @@ export default function UploadPage() {
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));
 
-      const res = await fetch("http://localhost:8000/api/uploads/upload-images", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
+      const res = await fetch(`${API_URL}/api/uploads/upload-images`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
