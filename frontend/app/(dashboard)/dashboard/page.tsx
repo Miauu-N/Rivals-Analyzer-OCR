@@ -12,7 +12,7 @@ export default function DashboardPage() {
       try {
         const token = localStorage.getItem("token");
         const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
-        
+
         // Fetch Recommended
         const resMatches = await fetch(`${API_URL}/api/matches/recommended`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -42,7 +42,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <h1 className="text-4xl font-bold">Dashboard</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <p className="text-gray-400 text-sm">Partidas Analizadas</p>
@@ -53,7 +53,7 @@ export default function DashboardPage() {
           <p className="text-3xl font-bold mt-2 text-green-400">{stats ? stats.win_rate : '--%'}</p>
         </div>
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
-          <p className="text-gray-400 text-sm">Héroe más jugado</p>
+          <p className="text-gray-400 text-sm">Rol más jugado</p>
           <p className="text-3xl font-bold mt-2 text-purple-400 text-xl truncate" title={stats && stats.top_heroes.length > 0 ? stats.top_heroes[0] : '--'}>
             {stats && stats.top_heroes.length > 0 ? stats.top_heroes[0] : '--'}
           </p>
@@ -79,7 +79,7 @@ export default function DashboardPage() {
                 <div>
                   <p className="font-bold">{m.result === 'Victory' ? 'Victoria' : 'Derrota'} en {m.map_name || 'Mapa Desconocido'}</p>
                   <p className="text-sm text-gray-400">
-                    Duración: {Math.floor(m.duration_seconds / 60)}:{(m.duration_seconds % 60).toString().padStart(2, '0')} mins • 
+                    Duración: {Math.floor(m.duration_seconds / 60)}:{(m.duration_seconds % 60).toString().padStart(2, '0')} mins •
                     Score: <span className="text-blue-400 font-bold">{m.replay_score}</span>
                   </p>
                 </div>
