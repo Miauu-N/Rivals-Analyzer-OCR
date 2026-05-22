@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import html2canvas from "html2canvas";
+import { toPng } from 'html-to-image';
 import { Download, RefreshCcw } from "lucide-react";
 
 interface Tier {
@@ -85,12 +85,10 @@ export default function TierListClient({ initialIcons }: TierListClientProps) {
   const downloadImage = async () => {
     if (!tierListRef.current) return;
     try {
-      const canvas = await html2canvas(tierListRef.current, {
-        backgroundColor: "#030712", // matches gray-950 roughly
-        useCORS: true,
-        scale: 2, // better resolution
+      const dataUrl = await toPng(tierListRef.current, {
+        backgroundColor: "#030712",
+        pixelRatio: 2,
       });
-      const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
       link.download = "rivals_tierlist.png";
       link.href = dataUrl;
