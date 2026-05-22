@@ -4,27 +4,39 @@ import Link from "next/link";
 
 export default function DashboardPage() {
   const [recommended, setRecommended] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRecommended = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
         const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://rivals-analyzer-ocr.onrender.com";
-        const res = await fetch(`${API_URL}/api/matches/recommended`, {
+        
+        // Fetch Recommended
+        const resMatches = await fetch(`${API_URL}/api/matches/recommended`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (res.ok) {
-          const data = await res.json();
+        if (resMatches.ok) {
+          const data = await resMatches.json();
           setRecommended(data);
         }
+
+        // Fetch Stats Summary
+        const resStats = await fetch(`${API_URL}/api/analytics/summary`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resStats.ok) {
+          const data = await resStats.json();
+          setStats(data);
+        }
       } catch (err) {
-        console.error("Error fetching recommended matches", err);
+        console.error("Error fetching dashboard data", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchRecommended();
+    fetchData();
   }, []);
 
   return (
@@ -34,19 +46,21 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <p className="text-gray-400 text-sm">Partidas Analizadas</p>
-          <p className="text-3xl font-bold mt-2">--</p>
+          <p className="text-3xl font-bold mt-2">{stats ? stats.total_matches : '--'}</p>
         </div>
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <p className="text-gray-400 text-sm">Win Rate</p>
-          <p className="text-3xl font-bold mt-2 text-green-400">--%</p>
+          <p className="text-3xl font-bold mt-2 text-green-400">{stats ? stats.win_rate : '--%'}</p>
         </div>
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <p className="text-gray-400 text-sm">Héroe más jugado</p>
-          <p className="text-3xl font-bold mt-2 text-purple-400">--</p>
+          <p className="text-3xl font-bold mt-2 text-purple-400 text-xl truncate" title={stats && stats.top_heroes.length > 0 ? stats.top_heroes[0] : '--'}>
+            {stats && stats.top_heroes.length > 0 ? stats.top_heroes[0] : '--'}
+          </p>
         </div>
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <p className="text-gray-400 text-sm">KDA Promedio</p>
-          <p className="text-3xl font-bold mt-2 text-blue-400">--</p>
+          <p className="text-3xl font-bold mt-2 text-blue-400">{stats ? stats.avg_kda : '--'}</p>
         </div>
       </div>
 

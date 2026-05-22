@@ -19,9 +19,14 @@ app = FastAPI(title=settings.PROJECT_NAME)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Limpiar la URL del frontend (quitar slash final y soportar múltiples URLs separadas por coma)
+origins = [url.strip().rstrip("/") for url in settings.FRONTEND_URL.split(",") if url.strip()]
+if not origins:
+    origins = ["*"] # Fallback if empty
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL], # Restricted from config
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
