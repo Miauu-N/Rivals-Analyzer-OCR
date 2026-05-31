@@ -51,4 +51,6 @@ htmlcov/
 backend/uploads/*
 !backend/uploads/.gitkeep
 backend/sql_app.db
+backend/test.db
+*.db
 project_context.md
