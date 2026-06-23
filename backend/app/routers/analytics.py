@@ -47,17 +47,17 @@ def get_stats_summary(db: Session = Depends(get_db), current_user: User = Depend
         kda_ratio = (total_kills + total_assists) / total_deaths
         avg_kda = f"{kda_ratio:.2f}"
 
-    hero_counts = {}
+    role_counts = {}
     for p in user_performances:
-        if p.hero_name:
-            hero_counts[p.hero_name] = hero_counts.get(p.hero_name, 0) + 1
+        if p.role:
+            role_counts[p.role] = role_counts.get(p.role, 0) + 1
     
-    top_heroes = sorted(hero_counts.items(), key=lambda x: x[1], reverse=True)
-    top_hero_names = [h[0] for h in top_heroes[:3]]
+    top_roles_sorted = sorted(role_counts.items(), key=lambda x: x[1], reverse=True)
+    top_roles = [r[0] for r in top_roles_sorted[:3]]
 
     return {
         "total_matches": total_matches,
         "win_rate": win_rate,
         "avg_kda": avg_kda,
-        "top_heroes": top_hero_names
+        "top_roles": top_roles
     }

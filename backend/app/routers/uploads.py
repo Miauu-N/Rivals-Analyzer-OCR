@@ -215,8 +215,7 @@ async def upload_images(
                                     match_id=db_match.id,
                                     player_name=p_data.get("player_name"),
                                     is_main_user=p_data.get("is_main_user", False),
-                                    # Store role in hero_name column (Vanguard/Duelist/Strategist)
-                                    hero_name=p_data.get("role") or p_data.get("hero_name"),
+                                    role=p_data.get("role"),
                                     damage=p_data.get("damage", 0),
                                     healing=p_data.get("healing", 0),
                                     kills=p_data.get("kills", 0),

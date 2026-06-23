@@ -9,7 +9,7 @@ class Performance(Base):
     match_id = Column(Integer, ForeignKey("matches.id"))
     player_name = Column(String)
     is_main_user = Column(Boolean, default=False)
-    hero_name = Column(String)
+    role = Column(String)
     damage = Column(Integer)
     healing = Column(Integer)
     kills = Column(Integer)
