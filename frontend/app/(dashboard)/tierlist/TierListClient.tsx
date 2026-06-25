@@ -31,9 +31,38 @@ export default function TierListClient({ initialIcons }: TierListClientProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setUnranked(initialIcons);
+    const savedTiers = localStorage.getItem("tierlist_tiers");
+    const savedUnranked = localStorage.getItem("tierlist_unranked");
+    
+    if (savedTiers && savedUnranked) {
+      try {
+        const parsedTiers = JSON.parse(savedTiers);
+        const parsedUnranked = JSON.parse(savedUnranked);
+        setTiers(parsedTiers);
+        
+        // Add any new icons that might have been added to the game
+        const existingIcons = new Set([
+          ...parsedUnranked,
+          ...parsedTiers.flatMap((t: Tier) => t.items)
+        ]);
+        const newIcons = initialIcons.filter(icon => !existingIcons.has(icon));
+        setUnranked([...parsedUnranked, ...newIcons]);
+      } catch (e) {
+        console.error("Failed to parse tierlist from local storage", e);
+        setUnranked(initialIcons);
+      }
+    } else {
+      setUnranked(initialIcons);
+    }
     setIsMounted(true);
   }, [initialIcons]);
+
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem("tierlist_tiers", JSON.stringify(tiers));
+      localStorage.setItem("tierlist_unranked", JSON.stringify(unranked));
+    }
+  }, [tiers, unranked, isMounted]);
 
   const handleDragStart = (e: React.DragEvent, item: string, sourceId: string) => {
     setDraggedItem(item);
