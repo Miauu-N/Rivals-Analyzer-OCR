@@ -8,6 +8,7 @@ class Performance(Base):
     id = Column(Integer, primary_key=True, index=True)
     match_id = Column(Integer, ForeignKey("matches.id"))
     player_name = Column(String)
+    team = Column(String, nullable=True)
     is_main_user = Column(Boolean, default=False)
     role = Column(String)
     damage = Column(Integer)

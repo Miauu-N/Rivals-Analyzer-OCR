@@ -299,6 +299,7 @@ export default function MatchesPage() {
                               <thead className="bg-gray-900 text-gray-400 border-b border-gray-800">
                                 <tr>
                                   <th className="p-2">Jugador</th>
+                                  <th className="p-2">Equipo</th>
                                   <th className="p-2">Rol</th>
                                   <th className="p-2">K / D / A</th>
                                   <th className="p-2">Daño</th>
@@ -324,6 +325,13 @@ export default function MatchesPage() {
                                     <tr key={p.id} className={p.is_main_user ? 'bg-indigo-900/20' : ''}>
                                       <td className={`p-2 font-medium ${p.is_main_user ? 'text-yellow-500' : 'text-gray-300'}`}>
                                         {p.player_name || 'Desconocido'}
+                                      </td>
+                                      <td className={`p-2 text-xs font-semibold ${
+                                        (p.team || '').toLowerCase() === 'ally' ? 'text-blue-400' :
+                                        (p.team || '').toLowerCase() === 'enemy' ? 'text-red-400' :
+                                        'text-gray-500'
+                                      }`}>
+                                        {p.team === 'Ally' ? 'Aliado' : p.team === 'Enemy' ? 'Enemigo' : (p.team || '-')}
                                       </td>
                                       <td className={`p-2 font-medium ${roleColor}`}>{p.hero_name || '-'}</td>
                                       <td className="p-2 font-mono">{p.kills} / {p.deaths} / {p.assists}</td>

@@ -214,6 +214,7 @@ async def upload_images(
                                 perf = Performance(
                                     match_id=db_match.id,
                                     player_name=p_data.get("player_name"),
+                                    team=p_data.get("team"),
                                     is_main_user=p_data.get("is_main_user", False),
                                     role=p_data.get("role"),
                                     damage=p_data.get("damage", 0),

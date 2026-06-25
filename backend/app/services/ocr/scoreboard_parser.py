@@ -32,6 +32,7 @@ def parse_scoreboard(image_path: str) -> dict:
             "performances": [
                 {
                     "player_name": "nombre del jugador tal cual aparece",
+                    "team": "'Ally' si es del equipo aliado (mitad superior, azul) o 'Enemy' si es enemigo (mitad inferior, rojo).",
                     "role": "ROL del jugador según el ICONO PEQUEÑO a la izquierda del nombre: Vanguard (escudo), Duelist (espadas cruzadas), Strategist (corazón/cruz médica). Si no puedes determinarlo escribe Unknown.",
                     "kills": el primer número del KDA que aparece EN LA CELDA del nombre del jugador (icono espada cruzada), NO es Final Hits,
                     "deaths": el segundo número del KDA en la celda del jugador (icono corazón roto),

@@ -4,6 +4,7 @@ from datetime import datetime
 
 class PerformanceBase(BaseModel):
     player_name: Optional[str] = None
+    team: Optional[str] = None
     is_main_user: Optional[bool] = False
     hero_name: Optional[str] = None  # stores role: Vanguard / Duelist / Strategist
     damage: int
