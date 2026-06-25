@@ -80,7 +80,7 @@ export default function DashboardPage() {
                   <p className="font-bold">{m.result === 'Victory' ? 'Victoria' : 'Derrota'} en {m.map_name || 'Mapa Desconocido'}</p>
                   <p className="text-sm text-gray-400">
                     Duración: {Math.floor(m.duration_seconds / 60)}:{(m.duration_seconds % 60).toString().padStart(2, '0')} mins •
-                    Score: <span className="text-blue-400 font-bold">{m.replay_score}</span>
+                    Replay Score: <span className="text-blue-400 font-bold">{m.replay_score}</span>
                   </p>
                 </div>
                 <Link href={`/matches/${m.id}`} className="px-4 py-2 bg-gray-800 rounded-md hover:bg-gray-700 transition-colors">

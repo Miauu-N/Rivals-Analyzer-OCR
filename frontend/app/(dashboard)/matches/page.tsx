@@ -63,7 +63,7 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: 'map_name',         label: 'Mapa'          },
   { key: 'kda',              label: 'KDA'           },
   { key: 'duration_seconds', label: 'Duración'      },
-  { key: 'replay_score',     label: 'Score'         },
+  { key: 'replay_score',     label: 'Replay Score'  },
   { key: 'dmg_per10',        label: 'DMG/10min'     },
   { key: 'heal_per10',       label: 'Cura/10min'    },
   { key: 'has_scoreboard',   label: 'Scoreboard'    },
