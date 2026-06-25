@@ -18,7 +18,7 @@ def get_stats_summary(db: Session = Depends(get_db), current_user: User = Depend
             "total_matches": 0,
             "win_rate": "0%",
             "avg_kda": "0.0",
-            "top_heroes": []
+            "top_roles": []
         }
 
     wins = db.query(Match).filter(

@@ -54,8 +54,8 @@ export default function DashboardPage() {
         </div>
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
           <p className="text-gray-400 text-sm">Rol más jugado</p>
-          <p className="text-3xl font-bold mt-2 text-purple-400 text-xl truncate" title={stats && stats.top_heroes.length > 0 ? stats.top_heroes[0] : '--'}>
-            {stats && stats.top_heroes.length > 0 ? stats.top_heroes[0] : '--'}
+          <p className="text-3xl font-bold mt-2 text-purple-400 text-xl truncate" title={stats && stats.top_roles && stats.top_roles.length > 0 ? stats.top_roles[0] : '--'}>
+            {stats && stats.top_roles && stats.top_roles.length > 0 ? stats.top_roles[0] : '--'}
           </p>
         </div>
         <div className="bg-gray-900 p-6 rounded-xl border border-gray-800">
