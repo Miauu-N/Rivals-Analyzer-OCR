@@ -26,7 +26,8 @@ from app.models.upload import Upload
 
 target_metadata = Base.metadata
 
-config.set_main_option("sqlalchemy.url", "sqlite:///./sql_app.db")
+db_url = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
+config.set_main_option("sqlalchemy.url", db_url)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
